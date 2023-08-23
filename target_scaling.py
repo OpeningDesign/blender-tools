@@ -32,6 +32,11 @@ class TargetScalingPanel(bpy.types.Panel):
         col.operator("edit.apply_target_scaling")
         col.operator("edit.copy_and_scale")
 
+        # Add boolean properties for scaling in X, Y, Z
+        col.prop(context.scene, "scale_x", text="Scale X")
+        col.prop(context.scene, "scale_y", text="Scale Y")
+        col.prop(context.scene, "scale_z", text="Scale Z")
+
 def getSelectedEdgeLength(context):
     obj = context.active_object
     bm = bmesh.from_edit_mesh(obj.data)
@@ -72,8 +77,25 @@ class DoTargetScaling(bpy.types.Operator):
             else:
                 unit_scale = 1.0
             target_length_in_units = context.scene.target_length * unit_scale
-            scale = 1.0 / l * target_length_in_units
-            bpy.ops.transform.resize(value=(scale, scale, scale))
+
+            # Determine scaling factors based on user inputs
+            scale_x = context.scene.scale_x
+            scale_y = context.scene.scale_y
+            scale_z = context.scene.scale_z
+
+            # Initialize scale factors to 1.0
+            scale_factors = [1.0, 1.0, 1.0]
+
+            # Apply user-defined scaling factors
+            if scale_x:
+                scale_factors[0] = 1.0 / l * target_length_in_units
+            if scale_y:
+                scale_factors[1] = 1.0 / l * target_length_in_units
+            if scale_z:
+                scale_factors[2] = 1.0 / l * target_length_in_units
+
+            # Apply the scaling
+            bpy.ops.transform.resize(value=scale_factors)
             bpy.ops.mesh.select_all(action="DESELECT")
         else:
             self.report({"ERROR"}, "Select a single edge for target scaling!")
@@ -91,8 +113,25 @@ class ApplyTargetScaling(bpy.types.Operator):
         else:
             unit_scale = 1.0
         target_length_in_units = context.scene.target_length * unit_scale
-        scale = 1.0 / getSelectedEdgeLength(context) * target_length_in_units
-        bpy.ops.transform.resize(value=(scale, scale, scale))
+
+        # Determine scaling factors based on user inputs
+        scale_x = context.scene.scale_x
+        scale_y = context.scene.scale_y
+        scale_z = context.scene.scale_z
+
+        # Initialize scale factors to 1.0
+        scale_factors = [1.0, 1.0, 1.0]
+
+        # Apply user-defined scaling factors
+        if scale_x:
+            scale_factors[0] = 1.0 / getSelectedEdgeLength(context) * target_length_in_units
+        if scale_y:
+            scale_factors[1] = 1.0 / getSelectedEdgeLength(context) * target_length_in_units
+        if scale_z:
+            scale_factors[2] = 1.0 / getSelectedEdgeLength(context) * target_length_in_units
+
+        # Apply the scaling
+        bpy.ops.transform.resize(value=scale_factors)
         bpy.ops.mesh.select_all(action="DESELECT")
         return {"FINISHED"}
 
@@ -118,11 +157,26 @@ class CopyAndScale(bpy.types.Operator):
         else:
             unit_scale = 1.0
         target_length_in_units = context.scene.target_length * unit_scale
-        scale = 1.0 / getSelectedEdgeLength(context) * target_length_in_units
-        
+
+        # Determine scaling factors based on user inputs
+        scale_x = context.scene.scale_x
+        scale_y = context.scene.scale_y
+        scale_z = context.scene.scale_z
+
+        # Initialize scale factors to 1.0
+        scale_factors = [1.0, 1.0, 1.0]
+
+        # Apply user-defined scaling factors
+        if scale_x:
+            scale_factors[0] = 1.0 / getSelectedEdgeLength(context) * target_length_in_units
+        if scale_y:
+            scale_factors[1] = 1.0 / getSelectedEdgeLength(context) * target_length_in_units
+        if scale_z:
+            scale_factors[2] = 1.0 / getSelectedEdgeLength(context) * target_length_in_units
+
         # do scaling on the new object
-        bpy.ops.transform.resize(value=(scale, scale, scale))
-        
+        bpy.ops.transform.resize(value=scale_factors)
+
         # deselect everything
         bpy.ops.mesh.select_all(action="DESELECT")
 
@@ -141,13 +195,35 @@ def register():
         min=0.0001,
         description="The target edge length for scaling"
     )
+
+    # Add boolean properties for scaling in X, Y, Z
+    bpy.types.Scene.scale_x = bpy.props.BoolProperty(
+        name="Scale X",
+        default=True,
+        description="Scale in the X direction"
+    )
     
+    bpy.types.Scene.scale_y = bpy.props.BoolProperty(
+        name="Scale Y",
+        default=True,
+        description="Scale in the Y direction"
+    )
+    
+    bpy.types.Scene.scale_z = bpy.props.BoolProperty(
+        name="Scale Z",
+        default=True,
+        description="Scale in the Z direction"
+    )
+
     classes = (TargetScalingPanel, SelectTargetEdge, DoTargetScaling, ApplyTargetScaling, CopyAndScale)
     for cls in classes:
         bpy.utils.register_class(cls)
 
 def unregister():
     del bpy.types.Scene.target_length
+    del bpy.types.Scene.scale_x
+    del bpy.types.Scene.scale_y
+    del bpy.types.Scene.scale_z
     
     classes = (TargetScalingPanel, SelectTargetEdge, DoTargetScaling, ApplyTargetScaling, CopyAndScale)
     for cls in classes:
