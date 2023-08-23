@@ -1,5 +1,5 @@
 bl_info = {
-    "name": "Target Mesh Reizer & Scaling",
+    "name": "Target Scaling",
     "author": "Vladimir Elistratov <vladimir.elistratov@gmail.com>",
     "modified_by": "Regis Nde Tene",
     "version": (1, 0, 6),
@@ -7,8 +7,8 @@ bl_info = {
     "location": "View 3D > Edit Mode > Tool Shelf",
     "description": "Scale your model to the correct target size",
     "warning": "",
-    "wiki_url": "https://github.com/vvoovv/blender-geo/wiki/Target-Scaling",
-    "tracker_url": "https://github.com/vvoovv/blender-geo/issues",
+    "wiki_url": "https://github.com/vvoovv/blender-tools/wiki/Target-Scaling",
+    "tracker_url": "https://github.com/vvoovv/blender-tools/issues",
     "support": "COMMUNITY",
     "category": "3D View",
 }
